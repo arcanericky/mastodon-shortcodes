@@ -1,0 +1,15 @@
+# Local secrets & Cloudflare Wrangler state
+.env
+.env.*
+.dev.vars
+.wrangler/
+
+# OS & editor files
+.DS_Store
+Thumbs.db
+*~
+.vscode/
+.idea/
+
+# Optional local node tooling
+node_modules/

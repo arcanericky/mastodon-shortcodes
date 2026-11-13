@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mastodon Shortcodes — Custom Emoji Explorer &amp; Character Counter</title>
+  <meta
+    name="description"
+    content="Browse custom emoji shortcodes on any Mastodon instance, copy :shortcodes:, and see how Mastodon counts shortcode characters."
+  />
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23595aff'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='monospace' font-weight='bold' font-size='30' fill='white'%3E:%29%3C/text%3E%3C/svg%3E"
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="header-copy">
+        <p class="eyebrow">Fediverse Reference Tool</p>
+        <h1>Mastodon Shortcodes</h1>
+        <p class="subtitle">
+          Browse custom emojis on any Mastodon server, click to copy <code>:shortcodes:</code>, and see how many characters each one costs.
+        </p>
+      </div>
+      <div id="hero-spotlight" class="hero-spotlight" aria-label="Featured custom emojis" hidden>
+        <div class="spotlight-emojis" id="spotlight-emojis"></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Instance Selector -->
+    <section class="card controls-card" aria-labelledby="instance-heading">
+      <h2 id="instance-heading" class="section-title">1. Choose a Mastodon Instance</h2>
+
+      <form id="instance-form" class="instance-form" novalidate>
+        <div class="field-group">
+          <label for="preset-select">Popular instances</label>
+          <select id="preset-select" aria-label="Popular Mastodon instances">
+            <option value="mastodon.social">mastodon.social</option>
+            <option value="mas.to">mas.to</option>
+            <option value="mastodon.online">mastodon.online</option>
+            <option value="fosstodon.org">fosstodon.org</option>
+            <option value="hachyderm.io">hachyderm.io</option>
+            <option value="infosec.exchange">infosec.exchange</option>
+            <option value="techhub.social">techhub.social</option>
+            <option value="mstdn.social">mstdn.social</option>
+            <option value="mastodon.world">mastodon.world</option>
+            <option value="universeodon.com">universeodon.com</option>
+            <option value="__custom__">Custom instance…</option>
+          </select>
+        </div>
+
+        <div class="field-group field-grow">
+          <label for="instance-input">Or enter any instance domain</label>
+          <div class="input-row">
+            <input
+              id="instance-input"
+              type="text"
+              value="mastodon.social"
+              placeholder="e.g. mastodon.social"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button type="submit" id="load-btn" class="btn-primary">Load Emojis</button>
+          </div>
+        </div>
+      </form>
+
+      <div id="status-bar" class="status-bar" role="status" aria-live="polite">
+        Loading emojis from <strong>mastodon.social</strong>…
+      </div>
+    </section>
+
+    <!-- How Shortcodes & Character Counting Work -->
+    <details class="card explainer-card">
+      <summary class="explainer-summary">
+        <span class="summary-title">
+          <span class="summary-chevron" aria-hidden="true">▸</span>
+          2. How Mastodon Shortcodes &amp; Character Counting Work
+        </span>
+        <span class="summary-pill">Guide &amp; Sandbox</span>
+      </summary>
+
+      <div class="explainer-grid">
+        <div class="explainer-text">
+          <h3>What is a shortcode?</h3>
+          <p>
+            Mastodon servers can upload custom emojis. Instead of a standard Unicode character, you insert them into a post by typing their <strong>shortcode</strong> wrapped in colons—for example, <code>:blobcat:</code>.
+          </p>
+
+          <h3>How are characters counted?</h3>
+          <p>
+            Unlike standard Unicode emojis (which usually count as <strong>1 character</strong>), Mastodon counts <strong>every character of the shortcode text</strong> toward your post limit—including both colons <code>:</code>:
+          </p>
+          <div class="formula-box">
+            <code>:blobcat:</code> → <code>:</code> (1) + <code>blobcat</code> (7) + <code>:</code> (1) = <strong>9 characters</strong>
+          </div>
+          <p class="muted-note">
+            Standard Mastodon instances have a <strong>500-character</strong> post limit. Long shortcodes use up space quickly—so if you're running tight on characters and a standard Unicode emoji (like 🎉 or 🐱, which counts as just 1 character) gets the point across, using that instead is an easy way to save space.
+          </p>
+        </div>
+
+        <div class="sandbox-box">
+          <div class="sandbox-header">
+            <label for="sandbox-input"><strong>Live Character Counter Sandbox</strong></label>
+            <button type="button" id="clear-sandbox-btn" class="btn-ghost">Clear</button>
+          </div>
+          <textarea
+            id="sandbox-input"
+            rows="4"
+            placeholder="Draft a post with :shortcodes: and Unicode emojis to see how they add up against the 500-character limit…"
+          ></textarea>
+          <div class="sandbox-stats">
+            <span>Total: <strong id="sandbox-total">0</strong> / 500</span>
+            <span>Shortcodes found: <strong id="sandbox-shortcodes">0</strong> (<strong id="sandbox-shortcode-chars">0</strong> chars)</span>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- Filter & Search -->
+    <section class="card filter-card" aria-label="Filter emojis">
+      <div class="filter-row">
+        <div class="field-group field-grow">
+          <label for="search-input">Search shortcodes</label>
+          <input
+            id="search-input"
+            type="search"
+            placeholder="Filter by shortcode or category (e.g. blob, cat, party)…"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="field-group">
+          <label for="category-select">Category</label>
+          <select id="category-select">
+            <option value="__all__">All categories</option>
+          </select>
+        </div>
+
+        <div class="field-group checkbox-group">
+          <div class="checkbox-help-wrap">
+            <label class="checkbox-label" title="Show emojis unlisted from this server's normal picker—their :shortcodes: still work when typed in a post.">
+              <input type="checkbox" id="show-hidden-toggle" />
+              <span>Include hidden</span>
+            </label>
+            <button
+              type="button"
+              class="help-tip-btn"
+              aria-label="What does Include hidden mean?"
+              data-tooltip="Shows emojis unlisted from this server's normal picker—their :shortcodes: still work when typed in a post."
+            >?</button>
+          </div>
+        </div>
+      </div>
+
+      <p id="results-summary" class="results-summary"></p>
+    </section>
+
+    <!-- Emoji Grid -->
+    <section aria-label="Custom emojis">
+      <div id="emoji-grid" class="emoji-grid"></div>
+      <div id="load-more-wrap" class="load-more-wrap" hidden>
+        <button type="button" id="load-more-btn" class="btn-ghost">Load more emojis</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <footer class="site-footer container">
+    <p>
+      Fetches public custom emoji data directly from each server's <code>/api/v1/custom_emojis</code> endpoint in your browser.
+    </p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
