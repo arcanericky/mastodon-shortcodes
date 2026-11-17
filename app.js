@@ -13,7 +13,7 @@
   const searchInput = document.getElementById("search-input");
   const categorySelect = document.getElementById("category-select");
   const showHiddenToggle = document.getElementById("show-hidden-toggle");
-  const hiddenToggleLabel = document.getElementById("hidden-toggle-label");
+  const hiddenToggleGroup = document.getElementById("hidden-toggle-group");
   const hiddenToggleText = document.getElementById("hidden-toggle-text");
   const resultsSummary = document.getElementById("results-summary");
   const emojiGrid = document.getElementById("emoji-grid");
@@ -113,13 +113,13 @@
 
   function updateHiddenToggleState(emojis) {
     const hiddenCount = emojis.filter((e) => e.visible_in_picker === false).length;
-    hiddenToggleText.textContent = `Include hidden (${hiddenCount})`;
     const hasHidden = hiddenCount > 0;
+    hiddenToggleGroup.hidden = !hasHidden;
+    hiddenToggleText.textContent = `Include hidden (${hiddenCount})`;
     showHiddenToggle.disabled = !hasHidden;
     if (!hasHidden) {
       showHiddenToggle.checked = false;
     }
-    hiddenToggleLabel.classList.toggle("is-disabled", !hasHidden);
   }
 
   function populateCategories(emojis) {

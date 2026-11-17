@@ -355,11 +355,6 @@ button:focus-visible {
   color: var(--text);
 }
 
-.field-group .checkbox-label.is-disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
 .checkbox-help-wrap {
   display: inline-flex;
   align-items: center;
