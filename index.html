@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mastodon Shortcodes — Custom Emoji Explorer &amp; Character Counter</title>
+  <title>Mastodon Shortcodes: Custom Emoji Explorer &amp; Character Counter</title>
   <meta
     name="description"
     content="Browse custom emoji shortcodes on any Mastodon instance, copy :shortcodes:, and see how Mastodon counts shortcode characters."
@@ -82,42 +82,26 @@
           <span class="summary-chevron" aria-hidden="true">▸</span>
           2. How Mastodon Shortcodes &amp; Character Counting Work
         </span>
-        <span class="summary-pill">Guide &amp; Sandbox</span>
+        <span class="summary-pill">Guide</span>
       </summary>
 
       <div class="explainer-grid">
         <div class="explainer-text">
           <h3>What is a shortcode?</h3>
           <p>
-            Mastodon servers can upload custom emojis. Instead of a standard Unicode character, you insert them into a post by typing their <strong>shortcode</strong> wrapped in colons—for example, <code>:blobcat:</code>.
+            Mastodon servers can upload custom emojis. Instead of a standard Unicode character, you insert them into a post by typing their <strong>shortcode</strong> wrapped in colons (for example, <code>:blobcat:</code>).
           </p>
 
           <h3>How are characters counted?</h3>
           <p>
-            Unlike standard Unicode emojis (which usually count as <strong>1 character</strong>), Mastodon counts <strong>every character of the shortcode text</strong> toward your post limit—including both colons <code>:</code>:
+            Unlike standard Unicode emojis (which usually count as <strong>1 character</strong>), Mastodon counts <strong>every character of the shortcode text</strong> toward your post limit, including both colons <code>:</code>:
           </p>
           <div class="formula-box">
             <code>:blobcat:</code> → <code>:</code> (1) + <code>blobcat</code> (7) + <code>:</code> (1) = <strong>9 characters</strong>
           </div>
           <p class="muted-note">
-            Standard Mastodon instances have a <strong>500-character</strong> post limit. Long shortcodes use up space quickly—so if you're running tight on characters and a standard Unicode emoji (like 🎉 or 🐱, which counts as just 1 character) gets the point across, using that instead is an easy way to save space.
+            Standard Mastodon instances have a <strong>500-character</strong> post limit. Long shortcodes use up space quickly, so if you're running tight on characters and a standard Unicode emoji (like 🎉 or 🐱, which counts as just 1 character) gets the point across, using that instead is an easy way to save space.
           </p>
-        </div>
-
-        <div class="sandbox-box">
-          <div class="sandbox-header">
-            <label for="sandbox-input"><strong>Live Character Counter Sandbox</strong></label>
-            <button type="button" id="clear-sandbox-btn" class="btn-ghost">Clear</button>
-          </div>
-          <textarea
-            id="sandbox-input"
-            rows="4"
-            placeholder="Draft a post with :shortcodes: and Unicode emojis to see how they add up against the 500-character limit…"
-          ></textarea>
-          <div class="sandbox-stats">
-            <span>Total: <strong id="sandbox-total">0</strong> / 500</span>
-            <span>Shortcodes found: <strong id="sandbox-shortcodes">0</strong> (<strong id="sandbox-shortcode-chars">0</strong> chars)</span>
-          </div>
         </div>
       </div>
     </details>
@@ -144,15 +128,15 @@
 
         <div class="field-group checkbox-group">
           <div class="checkbox-help-wrap">
-            <label class="checkbox-label" title="Show emojis unlisted from this server's normal picker—their :shortcodes: still work when typed in a post.">
+            <label id="hidden-toggle-label" class="checkbox-label" title="Show emojis unlisted from this server's normal picker. Their :shortcodes: still work when typed in a post.">
               <input type="checkbox" id="show-hidden-toggle" />
-              <span>Include hidden</span>
+              <span id="hidden-toggle-text">Include hidden</span>
             </label>
             <button
               type="button"
               class="help-tip-btn"
               aria-label="What does Include hidden mean?"
-              data-tooltip="Shows emojis unlisted from this server's normal picker—their :shortcodes: still work when typed in a post."
+              data-tooltip="Shows emojis unlisted from this server's normal picker. Their :shortcodes: still work when typed in a post."
             >?</button>
           </div>
         </div>

@@ -342,35 +342,6 @@ button:focus-visible {
   font-size: 0.85rem;
 }
 
-.sandbox-box {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  background: var(--surface-muted);
-  padding: 0.9rem;
-  border-radius: 10px;
-}
-
-.sandbox-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.9rem;
-}
-
-.sandbox-stats {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-.sandbox-stats .is-over-limit {
-  color: var(--error);
-}
-
 .checkbox-group {
   justify-content: flex-end;
   padding-bottom: 0.45rem;
@@ -382,6 +353,11 @@ button:focus-visible {
   gap: 0.4rem;
   cursor: pointer;
   color: var(--text);
+}
+
+.field-group .checkbox-label.is-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .checkbox-help-wrap {

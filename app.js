@@ -1,7 +1,6 @@
 (() => {
   const DEFAULT_INSTANCE = "mastodon.social";
   const BATCH_SIZE = 60;
-  const SHORTCODE_REGEX = /:[A-Za-z0-9_]{2,}:/g;
   const DOMAIN_REGEX =
     /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$/i;
 
@@ -14,16 +13,13 @@
   const searchInput = document.getElementById("search-input");
   const categorySelect = document.getElementById("category-select");
   const showHiddenToggle = document.getElementById("show-hidden-toggle");
+  const hiddenToggleLabel = document.getElementById("hidden-toggle-label");
+  const hiddenToggleText = document.getElementById("hidden-toggle-text");
   const resultsSummary = document.getElementById("results-summary");
   const emojiGrid = document.getElementById("emoji-grid");
   const loadMoreWrap = document.getElementById("load-more-wrap");
   const loadMoreBtn = document.getElementById("load-more-btn");
 
-  const sandboxInput = document.getElementById("sandbox-input");
-  const clearSandboxBtn = document.getElementById("clear-sandbox-btn");
-  const sandboxTotal = document.getElementById("sandbox-total");
-  const sandboxShortcodes = document.getElementById("sandbox-shortcodes");
-  const sandboxShortcodeChars = document.getElementById("sandbox-shortcode-chars");
   const heroSpotlightEl = document.getElementById("hero-spotlight");
   const spotlightEmojisEl = document.getElementById("spotlight-emojis");
   const toastEl = document.getElementById("toast");
@@ -34,23 +30,6 @@
   let activeInstance = DEFAULT_INSTANCE;
   let toastTimer = null;
   let activeFetchController = null;
-
-  const graphemeSegmenter =
-    typeof Intl !== "undefined" && Intl.Segmenter
-      ? new Intl.Segmenter("en", { granularity: "grapheme" })
-      : null;
-
-  function countGraphemes(text) {
-    if (!text) return 0;
-    if (graphemeSegmenter) {
-      let count = 0;
-      for (const _ of graphemeSegmenter.segment(text)) {
-        count += 1;
-      }
-      return count;
-    }
-    return Array.from(text).length;
-  }
 
   function normalizeInstance(raw) {
     let cleaned = raw.trim().toLowerCase();
@@ -132,23 +111,27 @@
     }
   }
 
-  function updateSandboxStats() {
-    const text = sandboxInput.value;
-    const totalChars = countGraphemes(text);
-    const matches = text.match(SHORTCODE_REGEX) || [];
-    const shortcodeCharSum = matches.reduce((sum, token) => sum + token.length, 0);
-
-    sandboxTotal.textContent = String(totalChars);
-    sandboxTotal.classList.toggle("is-over-limit", totalChars > 500);
-    sandboxShortcodes.textContent = String(matches.length);
-    sandboxShortcodeChars.textContent = String(shortcodeCharSum);
+  function updateHiddenToggleState(emojis) {
+    const hiddenCount = emojis.filter((e) => e.visible_in_picker === false).length;
+    hiddenToggleText.textContent = `Include hidden (${hiddenCount})`;
+    const hasHidden = hiddenCount > 0;
+    showHiddenToggle.disabled = !hasHidden;
+    if (!hasHidden) {
+      showHiddenToggle.checked = false;
+    }
+    hiddenToggleLabel.classList.toggle("is-disabled", !hasHidden);
   }
 
   function populateCategories(emojis) {
+    const previousValue = categorySelect.value;
+    const includeHidden = showHiddenToggle.checked;
     const categories = new Set();
     let hasUncategorized = false;
 
     for (const emoji of emojis) {
+      if (!includeHidden && emoji.visible_in_picker === false) {
+        continue;
+      }
       if (emoji.category && emoji.category.trim()) {
         categories.add(emoji.category.trim());
       } else {
@@ -179,6 +162,11 @@
       uncatOpt.textContent = "Uncategorized";
       categorySelect.appendChild(uncatOpt);
     }
+
+    const hasPrevious = Array.from(categorySelect.options).some(
+      (opt) => opt.value === previousValue
+    );
+    categorySelect.value = hasPrevious ? previousValue : "__all__";
   }
 
   function renderSpotlight(emojis) {
@@ -392,6 +380,7 @@
           a.shortcode.localeCompare(b.shortcode, undefined, { sensitivity: "base" })
         );
 
+      updateHiddenToggleState(allEmojis);
       populateCategories(allEmojis);
       renderSpotlight(allEmojis);
       renderEmojis();
@@ -403,6 +392,7 @@
       allEmojis = [];
       filteredEmojis = [];
       renderedCount = 0;
+      updateHiddenToggleState([]);
       populateCategories([]);
       renderSpotlight([]);
       setStatus(
@@ -432,7 +422,10 @@
 
   searchInput.addEventListener("input", renderEmojis);
   categorySelect.addEventListener("change", renderEmojis);
-  showHiddenToggle.addEventListener("change", renderEmojis);
+  showHiddenToggle.addEventListener("change", () => {
+    populateCategories(allEmojis);
+    renderEmojis();
+  });
   loadMoreBtn.addEventListener("click", renderNextBatch);
 
   if ("IntersectionObserver" in window) {
@@ -446,13 +439,6 @@
     );
     scrollObserver.observe(loadMoreWrap);
   }
-
-  sandboxInput.addEventListener("input", updateSandboxStats);
-  clearSandboxBtn.addEventListener("click", () => {
-    sandboxInput.value = "";
-    updateSandboxStats();
-    sandboxInput.focus();
-  });
 
   const initialFromUrl = new URLSearchParams(window.location.search).get("instance");
   loadInstance(initialFromUrl || DEFAULT_INSTANCE);

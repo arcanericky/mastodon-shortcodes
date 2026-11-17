@@ -5,7 +5,7 @@ A zero-dependency static web tool to browse custom emoji `:shortcodes:` on any M
 ## Features
 
 - **Any Mastodon Server:** Pick from 10 popular preset instances or enter any Mastodon domain to fetch its public `/api/v1/custom_emojis` catalog directly in the browser.
-- **Character Cost Awareness:** Displays the exact character cost of every `:shortcode:` (including colons) and includes an interactive Guide & Sandbox for comparing custom shortcodes with 1-character Unicode emojis.
+- **Character Cost Awareness:** Displays the exact character cost of every `:shortcode:` (including colons) and includes an interactive Guide comparing custom shortcodes with 1-character Unicode emojis.
 - **Fast on Large Servers:** Incrementally renders emojis in batches of 60 as you scroll so instances with thousands of custom emojis load smoothly without hitting media rate limits.
 - **Search & Filter:** Instant client-side filtering by shortcode text, category, and picker visibility (`visible_in_picker`).
 
