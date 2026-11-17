@@ -112,13 +112,57 @@
     }, 2200);
   }
 
-  async function copyShortcode(shortcodeText) {
+  function fallbackCopyText(text) {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.top = "-9999px";
+    textarea.style.left = "-9999px";
+    document.body.appendChild(textarea);
+    textarea.select();
+    let copied = false;
     try {
-      await navigator.clipboard.writeText(shortcodeText);
-      showToast(`Copied ${shortcodeText} (${shortcodeText.length} chars)`);
+      copied = document.execCommand("copy");
     } catch {
-      showToast(`Selected ${shortcodeText} (${shortcodeText.length} chars)`);
+      copied = false;
+    } finally {
+      document.body.removeChild(textarea);
     }
+    return copied;
+  }
+
+  async function copyShortcode(shortcodeText, sourceEl = null) {
+    let copied = false;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      try {
+        await navigator.clipboard.writeText(shortcodeText);
+        copied = true;
+      } catch {
+        copied = false;
+      }
+    }
+
+    if (!copied) {
+      copied = fallbackCopyText(shortcodeText);
+    }
+
+    if (copied) {
+      showToast(`Copied ${shortcodeText} (${shortcodeText.length} chars)`);
+      return;
+    }
+
+    if (sourceEl && window.getSelection) {
+      const range = document.createRange();
+      range.selectNodeContents(sourceEl);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      showToast(`Selected ${shortcodeText} (${shortcodeText.length} chars)`);
+      return;
+    }
+
+    showToast(`Copy blocked: copy ${shortcodeText} manually`);
   }
 
   function updateHiddenToggleState(emojis) {
@@ -200,12 +244,12 @@
       pill.type = "button";
       pill.className = "spotlight-pill";
       pill.title = `Click to copy ${code} (${code.length} chars)`;
-      pill.addEventListener("click", () => copyShortcode(code));
 
       const img = createEmojiImage(emoji, code, false);
 
       const label = document.createElement("code");
       label.textContent = code;
+      pill.addEventListener("click", () => copyShortcode(code, label));
 
       pill.appendChild(img);
       pill.appendChild(label);
@@ -251,7 +295,7 @@
     copyBtn.type = "button";
     copyBtn.className = "btn-copy";
     copyBtn.textContent = "Copy";
-    copyBtn.addEventListener("click", () => copyShortcode(code));
+    copyBtn.addEventListener("click", () => copyShortcode(code, codeEl));
 
     actions.appendChild(copyBtn);
 
