@@ -27,6 +27,7 @@
   let renderedCount = 0;
   let activeInstance = DEFAULT_INSTANCE;
   let toastTimer = null;
+  let searchDebounceTimer = null;
   let activeFetchController = null;
 
   function normalizeInstance(raw) {
@@ -346,6 +347,7 @@
   }
 
   function renderEmojis() {
+    clearTimeout(searchDebounceTimer);
     const query = searchInput.value.trim().toLowerCase();
     const selectedCategory = categorySelect.value;
     const includeHidden = showHiddenToggle.checked;
@@ -476,7 +478,10 @@
     loadInstance(instanceInput.value);
   });
 
-  searchInput.addEventListener("input", renderEmojis);
+  searchInput.addEventListener("input", () => {
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(renderEmojis, 120);
+  });
   categorySelect.addEventListener("change", renderEmojis);
   showHiddenToggle.addEventListener("change", () => {
     populateCategories(allEmojis);
