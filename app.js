@@ -263,7 +263,9 @@
       !showHiddenToggle.checked && hiddenTotal > 0
         ? ` (${hiddenTotal} hidden excluded)`
         : "";
-    resultsSummary.textContent = `Showing ${renderedCount} of ${filteredEmojis.length} matching custom emojis on ${activeInstance}${hiddenNote}`;
+    const scrollNote =
+      renderedCount < filteredEmojis.length ? " (scroll for more)" : "";
+    resultsSummary.textContent = `Showing ${renderedCount} of ${filteredEmojis.length} matching custom emojis on ${activeInstance}${hiddenNote}${scrollNote}`;
   }
 
   function renderNextBatch() {
