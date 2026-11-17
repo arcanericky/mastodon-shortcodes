@@ -1,8 +1,6 @@
 (() => {
   const DEFAULT_INSTANCE = "mastodon.social";
   const BATCH_SIZE = 60;
-  const DOMAIN_REGEX =
-    /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$/i;
 
   const presetSelect = document.getElementById("preset-select");
   const instanceForm = document.getElementById("instance-form");
@@ -38,7 +36,19 @@
     if (cleaned.includes("@")) {
       cleaned = cleaned.split("@").filter(Boolean).pop() || "";
     }
-    return cleaned;
+    if (!cleaned) return "";
+    try {
+      const parsed = new URL(`https://${cleaned}`);
+      if (parsed.username || parsed.password || !parsed.hostname) {
+        return "";
+      }
+      if (!parsed.hostname.includes(".") && parsed.hostname !== "localhost") {
+        return "";
+      }
+      return parsed.host;
+    } catch {
+      return "";
+    }
   }
 
   function isSafeHttpUrl(value) {
@@ -336,7 +346,7 @@
 
   async function loadInstance(rawDomain) {
     const domain = normalizeInstance(rawDomain);
-    if (!domain || !DOMAIN_REGEX.test(domain)) {
+    if (!domain) {
       setStatus("Please enter a valid Mastodon domain (for example, mastodon.social).", true);
       return;
     }
